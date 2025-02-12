@@ -25,8 +25,8 @@ def create_full_chain(retriever, llm_text, llm_vision):
     return full_chain
 
 #  Compressor chain: Retriever + reranking 
-def create_compression_chain(llm, ensemble_retriever):
-    compressor = CohereRerank(cohere_api_key="nbDqU1hTVxWmXGbLYI6OnYhp4Cx40MZ5hOmO5oKX")
+def create_compression_chain(llm, ensemble_retriever,cohere_api_key):
+    compressor = CohereRerank(cohere_api_key=cohere_api_key)
 
     compression_retriever = ContextualCompressionRetriever(
         base_retriever= ensemble_retriever, base_compressor= compressor

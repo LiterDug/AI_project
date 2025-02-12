@@ -6,13 +6,12 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.schema.document import Document
 from langchain_community.vectorstores import FAISS
 
-def create_retriver(text):
-    text_splitter = CharacterTextSplitter(chunk_size=20, chunk_overlap=10)
-    docs = [Document(page_content=x) for x in text_splitter.split_text(text)]    
+from file_embedding import *
 
+def create_retriver(chunks):
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-    vectorstore = FAISS.from_documents(docs,embedding=embeddings) # embedding documents lưu vào vectorstore
-    retriever=vectorstore.as_retriever() # Biến vectorstore thành một hệ thống truy xuất thông tin(retriever)
+    vectorstore = FAISS.from_documents(chunks,embedding=embeddings) 
+    retriever=vectorstore.as_retriever() 
     return retriever
 
 def create_vectorstore_retriever(chunks):

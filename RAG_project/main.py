@@ -10,22 +10,8 @@ import httpx
 
 from Chain import *
 from Retriever import *
-
-loader = TextLoader("./content/nike_shoes.txt") # đọc file
-
-def load_model(model_name, GOOGLE_API_KEY):
-  llm = ChatGoogleGenerativeAI(model=model_name)
-  os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
-  return llm
-
-def create_chunks(doc_path):
-    # Load document
-    loader=PyPDFLoader(doc_path)
-    docs=loader.load()
-    
-    splitter = RecursiveCharacterTextSplitter(chunk_size=200,chunk_overlap=30)
-    chunks = splitter.split_documents(docs)
-    return chunks
+from file_embedding import *
+from model import *
 
 def create_message(question, image_url):
     image_url = "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/252f2db6-d426-4931-80a0-8b7f8f875536/calm-slides-K7mr3W.png"
@@ -45,17 +31,27 @@ def create_message(question, image_url):
 GOOGLE_API_KEY = "..."
 llm_vision = load_model("gemini-1.5-flash",GOOGLE_API_KEY)
 llm_text = load_model("gemini-pro",GOOGLE_API_KEY)
+sentence_transformer = load_flan_t5_model()
 
-loader = TextLoader("./content/nike_shoes.txt")
-text=loader.load()[0].page_content
-retriever = create_retriver(text)
-
-full_chain = create_full_chain(retriever)
-
+# 1
+doc_path = "./content/nike_shoes.pdf"
 image_url = "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/252f2db6-d426-4931-80a0-8b7f8f875536/calm-slides-K7mr3W.png"
 question = "Provide information on given image "
+
+chunks = create_chunks(doc_path)
+retriever = create_retriver(chunks)
+full_chain = create_full_chain(retriever)
+
 message = create_message(question, image_url)
-response = full_chain.invoke(message)
+response = full_chain.invoke(message, llm_text, llm_vision)
+print(response)
+
+# 2
+ensemble_retriever = create_ensemble_retriever(chunks)
+compression_chain = create_compression_chain(sentence_transformer, ensemble_retriever)
+question = "What is the product name?"
+response = compression_chain.invoke(question)
+print(response)
 
 
 
