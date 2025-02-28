@@ -1,0 +1,13 @@
+llm_google:
+  model: "gemini-1.5-pro"
+  text_model: "gemini-pro" 
+  api_key: "AIzaSyAOiSV0fCbCyXsLcVqYXTCZnWEEIImqXYc"
+  temperature: 0.1
+  home: 100
+
+
+llm_flan_t5:
+  model: "google/flan-t5-base"
+  max_length: 300
+  temperature: 0.1
+  quantization: True
